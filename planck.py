@@ -25,7 +25,10 @@ def plot_visible(lines=100, transparency=0.3, linewidth=3, unit_exponent=1e9):
 
 def plot_planck(wavelength_array,
                 temperature_array,
-                colors=plt.cm.coolwarm):
+                colors=plt.cm.coolwarm,
+                tick_fontsize=14,
+                axes_fontsize=14,
+                title_fontsize=16):
 
     results = []
     for temperature in temperature_array:
@@ -33,6 +36,7 @@ def plot_planck(wavelength_array,
 
     # gets the current axes and set a colormap
     ax = plt.gca()
+
     colormap = colors
     ax.set_prop_cycle(plt.cycler('color', colormap(
         np.linspace(0, 1, len(temperature_array)))))
@@ -52,23 +56,27 @@ def plot_planck(wavelength_array,
     # getting the order of magnitude
     ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
     ax.yaxis.major.formatter._useMathText = True
-    ax.yaxis.offsetText.set_visible(False)
-
-    plt.draw()  # Update the text
+    ax.figure.canvas.draw()  # Update the text
     order_magnitude = ax.yaxis.get_offset_text().get_text().replace('\\times',
                                                                     '')
+    ax.yaxis.offsetText.set_visible(False)
 
     # labels and title
-    ax.set_xlabel('Wavelength / nm')
-    ax.set_ylabel('Energy density / (' + order_magnitude + ' $J/m^3$)')
-    ax.set_title('Planck\'s law - black body radiation')
+    ax.set_xlabel('Wavelength / nm', fontsize=axes_fontsize)
+    ax.set_ylabel('Energy density / (' + order_magnitude +
+                  ' $J/m^3$)', fontsize=axes_fontsize)
+    ax.set_title('Planck\'s law - black body radiation',
+                 fontsize=title_fontsize)
+    ax.tick_params(labelsize=tick_fontsize)
 
-    # relative font sizes
-    plt.rcParams.update({'axes.titlesize': 'xx-large',
-                         'axes.labelsize': 'xx-large',
-                         'xtick.labelsize': 'x-large',
-                         'ytick.labelsize': 'x-large',
-                         'legend.fontsize': 'large'})
-    plt.draw()
     plt.tight_layout()
     plt.show()
+
+
+if __name__ == "__main__":
+    lambda_array = np.linspace(1.0e-9, 2.0e-6, 1000)
+    temperature_array = np.arange(1000, 7001, 500)
+    fig1 = plt.figure(figsize=(10, 6))
+    ax = fig1.add_subplot(111)
+    plot_visible()
+    plot_planck(lambda_array, temperature_array)
