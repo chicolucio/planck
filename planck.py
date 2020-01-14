@@ -50,7 +50,7 @@ def plot_planck(wavelength_array,
     for result, temperature in zip(results, temperature_array):
         ax.plot(wavelength_array * 1e9, result,
                 label='{} K'.format(temperature), linewidth=3)
-    ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=14)
 
     # setting the y-axis to scientific notation and
     # getting the order of magnitude
@@ -65,9 +65,50 @@ def plot_planck(wavelength_array,
     ax.set_xlabel('Wavelength / nm', fontsize=axes_fontsize)
     ax.set_ylabel('Energy density / (' + order_magnitude +
                   ' $J/m^3$)', fontsize=axes_fontsize)
+    ax.tick_params(labelsize=tick_fontsize)
     ax.set_title('Planck\'s law - black body radiation',
                  fontsize=title_fontsize)
-    ax.tick_params(labelsize=tick_fontsize)
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_planck_interactive(wavelength_array,
+                            temperature=0):
+
+    plt.figure(figsize=(10, 6))
+    plot_visible()
+    results = planck_energy_density(wavelength_array, temperature)
+
+    # gets the current axes and set a colormap
+    ax = plt.gca()
+
+    # grid lines
+    ax.axhline(color="gray", zorder=-1)
+    ax.axvline(color="gray", zorder=-1)
+    ax.grid(linestyle=':', linewidth=1.5)
+
+    # the plots and legend
+    ax.plot(wavelength_array * 1e9, results,
+            label='{} K'.format(temperature), linewidth=3)
+    ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=14)
+
+    # setting the y-axis to scientific notation and
+    # getting the order of magnitude
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+    ax.yaxis.major.formatter._useMathText = True
+    ax.figure.canvas.draw()  # Update the text
+    order_magnitude = ax.yaxis.get_offset_text().get_text().replace('\\times',
+                                                                    '')
+    ax.yaxis.offsetText.set_visible(False)
+
+    # labels and title
+    ax.set_xlabel('Wavelength / nm', fontsize=14)
+    ax.set_ylabel('Energy density / (' + order_magnitude +
+                  ' $J/m^3$)', fontsize=14)
+    ax.tick_params(labelsize=14)
+    ax.set_title('Planck\'s law - black body radiation',
+                 fontsize=16)
 
     plt.tight_layout()
     plt.show()
