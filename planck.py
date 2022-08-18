@@ -2,177 +2,176 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import h, c, k, pi
 
+import warnings
 
-def planck_energy_density(wavelength, temperature):
-    """Spectral energy density according to Planck's law.
-    Uses the SI unit system, so the wavelength must be in meters (m) and the
-    temperature must be in Kelvin (K). Returns the spectral energy density form
-    of the Planck's law in Joule per cubic meter per spectral unit.
+plt_params = {
+    'font.size': 14.0,
+    'lines.linewidth': 3.0,
+    'axes.labelsize': 'large',
+    'axes.titlesize': 'x-large',
+    'axes.facecolor': 'white',
+    'figure.facecolor': 'white',
+    'figure.autolayout': True,
+    'figure.titlesize': 'xx-large',
+    'figure.figsize': (12, 8),
+    'legend.fancybox': True,
+    'legend.shadow': False,
+    'legend.fontsize': 'small',
+    'axes.grid': True,
+    'axes.axisbelow':True,
+    'grid.alpha': 0.3,
+    'grid.linestyle': ':',
+    'grid.linewidth': 1.5,
+}
 
-    Parameters
-    ----------
-    wavelength : float or array
-        The wavelength(s) in meter. Accepts vectors or floats
-    temperature : float
-        Temperature in Kelvin.
+plt.rcParams.update(plt_params)
 
-    Returns
-    -------
-    array or float
-        Spectral energy density vector or float (depends on wavelength)
+
+class Planck:
     """
-    rho = (8 * pi * h * c) / (wavelength**5 * (np.exp((h * c) /
-                                                      (wavelength * k *
-                                                       temperature)) - 1))
-    return rho
-
-
-def plot_visible(lines=100, transparency=0.3, linewidth=3, unit_exponent=1e9):
-    """Plots a visible spectrum in the current axis. Must be called before the
-    desired plot.
-
-    Parameters
-    ----------
-    lines : int, optional
-        The number of lines. Increase if blank spaces are noted, by default 100
-    transparency : float, optional
-        The transparency of the lines, by default 0.3
-    linewidth : int, optional
-        The width of lines, by default 3. Be careful not to use a large number
-    unit_exponent : float, optional
-        Usually the plots are in nanometers so by default 1e9.
-    """
-    ax = plt.gca()
-    steps = lines
-    visible = np.linspace(380e-9, 760e-9, steps)
-    colormap = plt.cm.gist_rainbow
-    colors = [colormap(i) for i in np.linspace(0.0, 1.0, steps)]
-    j = 0
-    for val in visible:
-        ax.axvline(val * unit_exponent, lw=linewidth,
-                   color=colors[-j], alpha=transparency, zorder=-1)
-        j += 1
-
-
-def plot_planck(wavelength_array,
-                temperature_array,
-                colors=plt.cm.coolwarm,
-                tick_fontsize=14,
-                axes_fontsize=14,
-                title_fontsize=16):
-    """Plots the Planck's law. The plot is in SI units (wavelength will appear
-    in nanometer).
-
-    Parameters
-    ----------
-    wavelength_array : array
-        Wavelength array in meters
-    temperature_array : array
-        Temperature in Kelvin. If only one, pass as a list with the value,
-        e.g. [5000]
-    colors : [type], optional
-        Desired colormap, by default plt.cm.coolwarm
-    tick_fontsize : int, optional
-        Tick labels font size, by default 14
-    axes_fontsize : int, optional
-        Axes labels font size, by default 14
-    title_fontsize : int, optional
-        Title font size, by default 16
+    Planck's law
     """
 
-    results = []
-    for temperature in temperature_array:
-        results.append(planck_energy_density(wavelength_array, temperature))
+    def __init__(self, wavelengths, temperatures):
+        """
+        Parameters
+        ----------
+        wavelengths : array-like
+            wavelength array in meters
+        temperatures : array-like
+            temperature in Kelvin. If only one, pass as a list with the value,
+            e.g. [5000]. Or as a tuple with the value, e.g. (5000, ).
+        """
+        self.wavelengths = wavelengths
+        self.temperatures = temperatures
 
-    # gets the current axes and set a colormap
-    ax = plt.gca()
+    @staticmethod
+    def energy_density(wavelength, temperature):
+        """Spectral energy density according to Planck's law.
+        Uses the SI unit system, so the wavelength must be in meters (m) and the
+        temperature must be in Kelvin (K). Returns the spectral energy density form
+        of the Planck's law in Joule per cubic meter per spectral unit.
 
-    colormap = colors
-    ax.set_prop_cycle(plt.cycler('color', colormap(
-        np.linspace(0, 1, len(temperature_array)))))
+        Parameters
+        ----------
+        wavelength : float or np.array
+            The wavelength(s) in meter. Accepts vectors or floats
+        temperature : float
+            Temperature in Kelvin.
 
-    # grid lines
-    ax.grid(linestyle=':', linewidth=1.5)
+        Returns
+        -------
+        array or float
+            Spectral energy density vector or float (depends on wavelength)
+        """
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', RuntimeWarning)  # suppress exp overflow
+            rho = (8 * pi * h * c) / (wavelength**5 * (np.exp((h * c) /
+                                                              (wavelength * k *
+                                                               temperature)) - 1))
+        return rho
 
-    # the plots and legend
-    for result, temperature in zip(results, temperature_array):
-        ax.plot(wavelength_array * 1e9, result,
-                label='{} K'.format(temperature), linewidth=3)
-    ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=14)
+    @staticmethod
+    def plot_visible(lines=200, transparency=0.3, unit_exponent=1e9):
+        """Plots a visible spectrum in the current axis. Must be called before the
+        desired plot.
 
-    # setting the y-axis to scientific notation and
-    # getting the order of magnitude
-    ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-    ax.yaxis.major.formatter._useMathText = True
-    ax.figure.canvas.draw()  # Update the text
-    order_magnitude = ax.yaxis.get_offset_text().get_text().replace('\\times',
-                                                                    '')
-    ax.yaxis.offsetText.set_visible(False)
+        Parameters
+        ----------
+        lines : int, optional
+            The number of lines. Increase if blank spaces are noted, by default 200
+        transparency : float, optional
+            The transparency of the lines, by default 0.3
+        unit_exponent : float, optional
+            Usually the plots are in nanometers so by default 1e9.
+        """
+        ax = plt.gca()
+        steps = lines
+        visible = np.linspace(380e-9, 760e-9, steps)
+        colormap = plt.cm.gist_rainbow
+        colors = [colormap(i) for i in np.linspace(0.0, 1.0, steps)]
+        j = 0
+        for val in visible:
+            ax.axvline(val * unit_exponent,
+                       color=colors[-j], alpha=transparency, zorder=-1)
+            j += 1
 
-    # labels and title
-    ax.set_xlabel('Wavelength / nm', fontsize=axes_fontsize)
-    ax.set_ylabel('Energy density / (' + order_magnitude +
-                  ' $J/m^3$)', fontsize=axes_fontsize)
-    ax.tick_params(labelsize=tick_fontsize)
-    ax.set_title('Planck\'s law - black body radiation',
-                 fontsize=title_fontsize)
+    def _plot_one_temperature(self, wavelengths, temperature):
 
-    plt.tight_layout()
-    plt.show()
+        result = self.__class__.energy_density(wavelengths, temperature)
 
+        ax = plt.gca()  # gets the current axes
+        ax.plot(wavelengths * 1e9, result, label='{} K'.format(temperature))
 
-def plot_planck_interactive(wavelength_array,
-                            temperature=0):
-    """Interactive plot.
+        return ax
 
-    Parameters
-    ----------
-    wavelength_array : array
-        Wavelength array in meters
-    temperature : int, optional
-        Initial temperature in the plot, by default 0
-    """
+    def plot(self, colors=plt.cm.coolwarm, ax=None, **visible_kwargs):
+        """Plots the Planck's law. The plot is in SI units (wavelength will appear
+        in nanometer).
 
-    plt.figure(figsize=(10, 6))
-    plot_visible()
-    results = planck_energy_density(wavelength_array, temperature)
+        Parameters
+        ----------
+        colors : matplotlib colormap, optional
+            Desired colormap, by default plt.cm.coolwarm
+        ax : matplotlib axis
+            If None, it will be created. Default: None
+        **visible_kwargs
+            Additional keyword arguments passed to `plot_visible` method. See it for
+            details.
+        """
+        if ax is None:
+            fig, ax = plt.subplots()
 
-    # gets the current axes and set a colormap
-    ax = plt.gca()
+        self.__class__.plot_visible(**visible_kwargs)
 
-    # grid lines
-    ax.grid(linestyle=':', linewidth=1.5)
+        colormap = colors
+        ax.set_prop_cycle(plt.cycler('color', colormap(
+            np.linspace(0, 1, len(self.temperatures)))))
 
-    # the plots and legend
-    ax.plot(wavelength_array * 1e9, results,
-            label='{} K'.format(temperature), linewidth=3)
-    ax.legend(loc='upper left', bbox_to_anchor=(1, 1), fontsize=14)
+        for temperature in self.temperatures:
+            self._plot_one_temperature(self.wavelengths, temperature)
+            ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
-    # setting the y-axis to scientific notation and
-    # getting the order of magnitude
-    ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
-    ax.yaxis.major.formatter._useMathText = True
-    ax.figure.canvas.draw()  # Update the text
-    order_magnitude = ax.yaxis.get_offset_text().get_text().replace('\\times',
-                                                                    '')
-    ax.yaxis.offsetText.set_visible(False)
+        # setting the y-axis to scientific notation and
+        # getting the order of magnitude
+        ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        ax.yaxis.major.formatter._useMathText = True
+        ax.figure.canvas.draw()  # Updates the text
+        order_magnitude = ax.yaxis.get_offset_text().get_text().replace('\\times',
+                                                                        '')
+        ax.yaxis.offsetText.set_visible(False)
 
-    # labels and title
-    ax.set_xlabel('Wavelength / nm', fontsize=14)
-    ax.set_ylabel('Energy density / (' + order_magnitude +
-                  ' $J/m^3$)', fontsize=14)
-    ax.tick_params(labelsize=14)
-    ax.set_title('Planck\'s law - black body radiation',
-                 fontsize=16)
+        ax.set_xlabel('Wavelength / nm')
+        ax.set_ylabel('Energy density / (' + order_magnitude +
+                      ' $J/m^3$)')
+        ax.set_title('Planck\'s law - black body radiation')
 
-    plt.tight_layout()
-    plt.show()
+    @classmethod
+    def plot_interactive(cls, wavelengths, temperature=0, **visible_kwargs):
+        """Method created to be used in interactive plots (like ipywidgets)
+
+        Parameters
+        ----------
+        wavelengths : array-like
+            wavelength array in meters
+        temperature : int, optional
+            Initial temperature in the plot, by default 0
+        **visible_kwargs
+            Additional keyword arguments passed to `plot_visible` method. See it for
+            details.
+        """
+        cls(wavelengths, (temperature,)).plot(**visible_kwargs)
+
+        plt.tight_layout()
+        plt.show()
 
 
 if __name__ == "__main__":
-    lambda_array = np.linspace(1.0e-9, 2.0e-6, 1000)
-    temperature_array = np.arange(1000, 7001, 500)
+    wavelengths = np.linspace(1.0e-9, 2.0e-6, 1000)
+    temperatures = np.arange(1000, 7001, 500)
+    example = Planck(wavelengths, temperatures)
     fig1 = plt.figure(figsize=(10, 6))
     ax = fig1.add_subplot(111)
-    plot_visible()
-    plot_planck(lambda_array, temperature_array)
+    example.plot(ax=ax)
+    plt.show()
+
