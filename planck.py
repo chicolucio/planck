@@ -128,12 +128,13 @@ class Planck:
         ax = plt.gca()
         steps = lines
         visible = np.linspace(380e-9, 760e-9, steps)
-        colormap = plt.cm.gist_rainbow
+        colormap = spectralmap.reversed()
         colors = [colormap(i) for i in np.linspace(0.0, 1.0, steps)]
         j = 0
         for val in visible:
             ax.axvline(val * unit_exponent,
-                       color=colors[-j], alpha=transparency, zorder=-1)
+                       color=colors[-j], alpha=transparency, zorder=-1,
+                       linewidth=3)
             j += 1
 
     def _plot_one_temperature(self, wavelengths, temperature):
@@ -145,16 +146,18 @@ class Planck:
 
         return ax
 
-    def plot(self, colors=plt.cm.coolwarm, ax=None, **visible_kwargs):
+    def plot(self, colors=plt.cm.coolwarm_r, ax=None, legend=True, **visible_kwargs):
         """Plots the Planck's law. The plot is in SI units (wavelength will appear
         in nanometer).
 
         Parameters
         ----------
         colors : matplotlib colormap, optional
-            Desired colormap, by default plt.cm.coolwarm
+            Desired colormap, by default plt.cm.coolwarm_r
         ax : matplotlib axis
             If None, it will be created. Default: None
+        legend : bool
+            If a legend will be displayed. Default: True
         **visible_kwargs
             Additional keyword arguments passed to `plot_visible` method. See it for
             details.
@@ -170,7 +173,8 @@ class Planck:
 
         for temperature in self.temperatures:
             self._plot_one_temperature(self.wavelengths, temperature)
-            ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
+            if legend:
+                ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
 
         # setting the y-axis to scientific notation and
         # getting the order of magnitude
@@ -186,8 +190,10 @@ class Planck:
                       ' $J/m^3$)')
         ax.set_title('Planck\'s law - black body radiation')
 
+        return ax
+
     @classmethod
-    def plot_interactive(cls, wavelengths, temperature=0, **visible_kwargs):
+    def plot_interactive(cls, wavelengths, temperature=0, ax=None, **visible_kwargs):
         """Method created to be used in interactive plots (like ipywidgets)
 
         Parameters
@@ -200,10 +206,10 @@ class Planck:
             Additional keyword arguments passed to `plot_visible` method. See it for
             details.
         """
-        cls(wavelengths, (temperature,)).plot(**visible_kwargs)
+        cls(wavelengths, (temperature,)).plot(ax=ax, legend=False, **visible_kwargs)
 
-        plt.tight_layout()
-        plt.show()
+        # plt.tight_layout()
+        # plt.show()
 
 
 if __name__ == "__main__":
