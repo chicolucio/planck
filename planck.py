@@ -1,6 +1,10 @@
+from collections import namedtuple
+
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.constants import h, c, k, pi
+from scipy.constants import h, c, k, pi, Wien
+
+from visible import spectralmap
 
 import warnings
 
@@ -25,6 +29,17 @@ plt_params = {
 }
 
 plt.rcParams.update(plt_params)
+
+CLASSIFICATION_FILE = 'iso_21348_data.csv'
+
+CLASSIFICATION_DATA = np.genfromtxt(CLASSIFICATION_FILE, usecols=(0, 2, 9, 10),
+                                    names=('category', 'subcategory', 'lower_wavelength',
+                                           'higher_wavelength'), delimiter=',',
+                                    skip_header=1,
+                                    dtype=['U20', 'U25', 'float', 'float'],
+                                    encoding='utf-8')
+
+Classification = namedtuple('Classification', ('category', 'subcategory'))
 
 
 class Planck:
@@ -72,7 +87,32 @@ class Planck:
         return rho
 
     @staticmethod
-    def plot_visible(lines=200, transparency=0.3, unit_exponent=1e9):
+    def wien_peak(temperature):
+        return Wien / temperature
+
+    @staticmethod
+    def spectral_categories(wavelength):
+        """
+        Spectral classification according to ISO 21348.
+
+        Parameters
+        ----------
+        wavelength :  float
+            The wavelength(s) in meter.
+
+        Returns
+        -------
+        list of strings
+            Categories and subcategories according to ISO 21348.
+        """
+        result = []
+        for entry in CLASSIFICATION_DATA:
+            if entry['lower_wavelength'] <= wavelength < entry['higher_wavelength']:
+                result.append(Classification(entry['category'], entry['subcategory']))
+        return result
+
+    @staticmethod
+    def plot_visible(lines=300, transparency=0.3, unit_exponent=1e9):
         """Plots a visible spectrum in the current axis. Must be called before the
         desired plot.
 
