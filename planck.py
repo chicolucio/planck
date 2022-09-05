@@ -1,12 +1,12 @@
+import warnings
 from collections import namedtuple
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from numpy import ComplexWarning
 from scipy.constants import h, c, k, pi, Wien
 
 from visible import spectralmap
-
-import warnings
 
 plt_params = {
     'font.size': 14.0,
@@ -128,14 +128,17 @@ class Planck:
         ax = plt.gca()
         steps = lines
         visible = np.linspace(380e-9, 760e-9, steps)
-        colormap = spectralmap.reversed()
-        colors = [colormap(i) for i in np.linspace(0.0, 1.0, steps)]
-        j = 0
-        for val in visible:
-            ax.axvline(val * unit_exponent,
-                       color=colors[-j], alpha=transparency, zorder=-1,
-                       linewidth=3)
-            j += 1
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore',
+                                  ComplexWarning)  # suppress casting complex warning
+            colormap = spectralmap.reversed()
+            colors = [colormap(i) for i in np.linspace(0.0, 1.0, steps)]
+            j = 0
+            for val in visible:
+                ax.axvline(val * unit_exponent,
+                           color=colors[-j], alpha=transparency, zorder=-1,
+                           linewidth=3)
+                j += 1
 
     def _plot_one_temperature(self, wavelengths, temperature):
 
@@ -207,9 +210,6 @@ class Planck:
             details.
         """
         cls(wavelengths, (temperature,)).plot(ax=ax, legend=False, **visible_kwargs)
-
-        # plt.tight_layout()
-        # plt.show()
 
 
 if __name__ == "__main__":
