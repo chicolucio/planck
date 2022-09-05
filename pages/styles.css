@@ -1,0 +1,70 @@
+/*add padding to sliders to make it easier to touch in small screens*/
+.stSlider{
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+/*the sidebar arrow should be greater in small screens*/
+button[kind="header"] .ex0cdmw0 {
+    scale: 2;
+}
+
+/*decrease the empty space above the page body*/
+css-12oz5g7.egzxvld2 {
+    padding-top: 20px;
+}
+
+/*nice round photos for about page*/
+.e1tzin5v2 .etr89bj1[data-testid="stImage"] img {
+    border-radius: 50%;
+}
+
+/*main titles should be clearer and centered*/
+h1 {
+    font-weight: bold;
+    text-align: center;
+}
+
+/*subheaders should be clearer and centered*/
+.css-10trblm.e16nr0p30 {
+    font-weight: bold;
+    text-align: center;
+}
+
+/*columns centered*/
+.e1tzin5v2 {
+    text-align: center;
+}
+
+/*the LaTeX content does not need to be so huge*/
+.katex{
+    font-size: 1.10em;
+}
+
+/*increase font size*/
+p {
+    font-size: 19px;
+}
+
+/*font size inside side bar*/
+.css-163ttbj[data-testid="stSidebar"] p {
+    font-size: 0.9rem;
+}
+
+/*font size metric*/
+.css-1xarl3l[data-testid="stMetricValue"] {
+    font-size: 1.5rem;
+}
+
+/*hide Streamlit components*/
+MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
