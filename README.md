@@ -1,6 +1,6 @@
 # Planck's law
 
-A simple script to plot the Planck's law. Planck's law describes the spectral
+A project to study the Planck's law. Planck's law describes the spectral
 density of electromagnetic radiation emitted by a black body in thermal
 equilibrium at a given temperature, when there is no net flow of matter or
 energy between the body and its environment.
