@@ -3,7 +3,7 @@ from collections import namedtuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import ComplexWarning
+from numpy.exceptions import ComplexWarning
 from scipy.constants import h, c, k, pi, Wien
 
 from visible import spectralmap
@@ -220,4 +220,3 @@ if __name__ == "__main__":
     ax = fig1.add_subplot(111)
     example.plot(ax=ax)
     plt.show()
-

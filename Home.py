@@ -3,7 +3,7 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import streamlit as st
-from numpy import ComplexWarning
+from numpy.exceptions import ComplexWarning
 
 from helpers import load_css, text_from_markdown, find_me_buttons
 from planck import Planck
